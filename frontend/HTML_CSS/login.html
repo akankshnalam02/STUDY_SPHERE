@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Sphere - Login</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 60px;
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #FFD700;
+    }
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav a {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      text-decoration: none;
+      padding: 12px 24px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    nav a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+    }
+
+    .login-section {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .login-form {
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+    .login-form label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #FFD700;
+    }
+    .login-form input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 2px solid #FFD700;
+      border-radius: 5px;
+      background: #000;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .login-form input:focus {
+      border-color: #FFA500;
+    }
+    .login-form button {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      border: none;
+      padding: 12px 24px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      width: 100%;
+      font-size: 16px;
+    }
+    .login-form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    }
+    .login-form .signup-prompt {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #f1f1f1;
+    }
+    .login-form .signup-prompt a {
+      color: #FFD700;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .login-form .signup-prompt a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 30px;
+      }
+      .logo {
+        font-size: 22px;
+      }
+      .login-form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Study Sphere</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="signup.html">Sign Up</a>
+    </nav>
+  </header>
+
+  <section class="login-section">
+    <form class="login-form" id="loginForm">
+      <label for="regNo">Email</label> 
+      <input
+        type="email"
+        id="regNo"
+        name="regNo"
+        required
+        placeholder="Enter your Email"
+      />
+
+      <label for="password">Password :</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        placeholder="Enter your password"
+      />
+
+      <button type="submit">Login</button>
+      <div class="signup-prompt">
+        Don't have an account? <a href="signup.html">Create one</a>
+      </div>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("regNo").value;
+      const password = document.getElementById("password").value;
+
+      const userData = {
+        email,
+        password
+      };
+
+      try {
+        const res = await fetch("https://study-sphere-1.onrender.com/api/auth/user/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(userData)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+  alert(result.message || "Login successful!");
+  
+  // Save login status and timestamp
+  const loginData = {
+    loggedIn: true,
+    timestamp: new Date().getTime()
+  };
+  localStorage.setItem("userLogin", JSON.stringify(loginData));
+
+  // Redirect to access.html or index.html
+  window.location.href = "access.html";
+}
+
+        else {
+          alert(result.message || "Invalid credentials. Please try again.");
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        alert("Something went wrong. Please try again later.");
+      }
+    });
+  </script>
+
+</body>
+</html>

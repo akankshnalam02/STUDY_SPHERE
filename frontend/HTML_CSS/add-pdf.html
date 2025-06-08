@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Upload PDF - Admin</title>
+    <style>
+        /* Basic Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-form {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .upload-form label {
+            display: block;
+            font-weight: 600;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+
+        .upload-form input[type="text"],
+        .upload-form input[type="file"],
+        .upload-form button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 2px solid #FFD700;
+            background: #000;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .upload-form button {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            border: none;
+            cursor: pointer;
+        }
+
+        .upload-form button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+
+        .upload-form .message {
+            color: #FFD700;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-form">
+        <h2>Upload PDF</h2>
+        <form id="uploadPdfForm" enctype="multipart/form-data">
+            <label for="professor">Professor Name</label>
+            <input type="text" id="professor" name="professor" required />
+
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" required />
+
+            <label for="year">Year</label>
+            <input type="text" id="year" name="year" required />
+
+            <!-- New field for Unit Number -->
+            <label for="unitNumber">Unit Number</label>
+            <input type="number" id="unitNumber" name="unitNumber" required />
+
+            <label for="file">Choose PDF</label>
+            <input type="file" id="file" name="file" accept="application/pdf" required />
+
+            <button type="submit">Upload PDF</button>
+        </form>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById("uploadPdfForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const professor = document.getElementById("professor").value;
+            const subject = document.getElementById("subject").value;
+            const year = document.getElementById("year").value;
+            const unitNumber = document.getElementById("unitNumber").value;  // Get the unit number
+            const file = document.getElementById("file").files[0];
+
+            if (!file || file.type !== "application/pdf") {
+                alert("Please upload a valid PDF file");
+                return;
+            }
+
+            // FormData now includes unitNumber
+            const formData = new FormData();
+            formData.append("professor", professor);
+            formData.append("subject", subject);
+            formData.append("year", year);
+            formData.append("unitNumber", unitNumber);  // Append unitNumber
+            formData.append("file", file);
+
+            try {
+                const res = await fetch("https://study-sphere-1.onrender.com/api/pdf/upload", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("adminToken")}`
+                    },
+                    body: formData
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+    document.getElementById("message").textContent = "PDF uploaded successfully!";
+    setTimeout(() => {
+        window.location.href = "admin_login.html";
+    }, 1500); // wait 1.5 seconds before redirecting
+} else {
+    document.getElementById("message").textContent = result.message || "Upload failed. Please try again.";
+}
+
+            } catch (error) {
+                document.getElementById("message").textContent = "Error during upload. Please try again later.";
+            }
+        });
+    </script>
+</body>
+</html>

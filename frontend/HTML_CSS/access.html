@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Sphere - PDFs</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+      min-height: 90vh;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 60px;
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 10px rgba(255,215,0,0.2);
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #FFD700;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      text-decoration: none;
+      padding: 12px 24px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    nav a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,215,0,0.7);
+    }
+
+    .wave-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background: #000;
+    }
+
+    .wave-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .container {
+      background: rgba(255,215,0,0.1);
+      backdrop-filter: blur(15px);
+      padding: 60px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      text-align: center;
+      max-width: 800px;
+      width: 90%;
+      color: #fff;
+      position: relative;
+      z-index: 5;
+      margin: 60px auto;
+    }
+
+    .dropdown-container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    select {
+      padding: 14px;
+      font-size: 20px;
+      border-radius: 10px;
+      background: rgba(255,215,0,0.2);
+      color: #000;
+      border: none;
+      outline: none;
+    }
+
+    button.submit-btn {
+      padding: 16px;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 22px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    button.submit-btn:hover {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 30px;
+      }
+
+      .logo {
+        font-size: 22px;
+      }
+
+      .container {
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wave-container">
+    <svg class="wave-svg" viewBox="0 0 1280 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFD700" stop-opacity="0.4" />
+          <stop offset="100%" stop-color="#FFA500" stop-opacity="0.4" />
+        </linearGradient>
+        <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFA500" stop-opacity="0.3" />
+          <stop offset="100%" stop-color="#FF4500" stop-opacity="0.3" />
+        </linearGradient>
+      </defs>
+      <path id="wavePath1" fill="url(#waveGradient1)" d="M0,300 C300,200 600,400 900,300 C1200,200 1440,350 1440,350 L1440,600 L0,600 Z"></path>
+      <path id="wavePath2" fill="url(#waveGradient2)" d="M0,350 C350,400 700,150 1050,350 C1400,400 1440,300 1440,300 L1440,600 L0,600 Z"></path>
+    </svg>
+  </div>
+
+  <header>
+    <div class="logo">Study Sphere</div>
+    <nav id="nav-links">
+      <a href="index.html">Home</a>
+      <a href="#" id="logout-link">Logout</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2 style="margin-bottom: 20px; color: #FFD700;">Download PDFs</h2>
+    <div class="dropdown-container">
+      <select>
+        <option>Select Year</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+      </select>
+      <select>
+        <option>Select Subject</option>
+        <option>DevOps</option>
+        <option>Deep Learning</option>
+        <option>Software Engineering</option>
+        <option>CSR</option>
+        <option>Computer Networks</option>
+      </select>
+      <select>
+        <option>Select Teacher</option>
+        <option>Sirisha Madam</option>
+        <option>Aruna Madam</option>
+        <option>Janaki Madam</option>
+        <option>RaghuRam Sir</option>
+        <option>Vidhya Sagar Sir</option>
+      </select>
+      <button class="submit-btn">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Wave animation
+      const wavePath1 = document.querySelector('#wavePath1');
+      const wavePath2 = document.querySelector('#wavePath2');
+      const wave1Orig = wavePath1.getAttribute('d');
+      const wave2Orig = wavePath2.getAttribute('d');
+      const wave1Morph = 'M0,340 C300,450 600,250 900,340 C1200,450 1440,320 1440,320 L1440,600 L0,600 Z';
+      const wave2Morph = 'M0,400 C350,200 700,450 1050,400 C1400,200 1440,350 1440,350 L1440,600 L0,600 Z';
+
+      anime.timeline({ loop: true, direction: 'alternate' })
+        .add({
+          targets: wavePath1,
+          d: [wave1Orig, wave1Morph],
+          easing: 'easeInOutQuad',
+          duration: 4000
+        })
+        .add({
+          targets: wavePath2,
+          d: [wave2Orig, wave2Morph],
+          easing: 'easeInOutQuad',
+          duration: 4000,
+          offset: '-=2000'
+        });
+
+      // Logout functionality
+      const logoutLink = document.getElementById("logout-link");
+
+      logoutLink.addEventListener("click", async () => {
+        await fetch("https://study-sphere-1.onrender.com/api/auth/logout", { method: "POST" });
+        localStorage.removeItem("userLogin");
+        window.location.href = 'login.html';
+      });
+    });
+
+    // Submit button event to redirect with selected parameters
+    document.querySelector(".submit-btn").addEventListener("click", async function () {
+      const year = document.querySelector("select:nth-child(1)").value;
+      const subject = document.querySelector("select:nth-child(2)").value;
+      const professor = document.querySelector("select:nth-child(3)").value;
+      
+      // Construct the query string
+      const query = `?year=${year}&subject=${subject}&professor=${professor}`;
+      
+      // Redirect to the display page with the query string
+      window.location.href = `display-pdfs.html${query}`;
+    });
+  </script>
+</body>
+</html>

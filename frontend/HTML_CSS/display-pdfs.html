@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Sphere - PDF Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: auto; /* Changed to auto to allow scrolling if needed */
+      min-height: 90vh;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 60px;
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 10px rgba(255,215,0,0.2);
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #FFD700;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      text-decoration: none;
+      padding: 12px 24px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    nav a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,215,0,0.7);
+    }
+
+    .wave-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background: #000;
+    }
+
+    .wave-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .container {
+      background: rgba(255,215,0,0.1);
+      backdrop-filter: blur(15px);
+      padding: 60px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      text-align: center;
+      max-width: 800px;
+      width: 90%;
+      color: #fff;
+      position: relative;
+      z-index: 5;
+      margin: 80px auto; /* Added top margin to avoid overlap with header */
+    }
+
+    .pdf-item {
+      background: rgba(255,215,0,0.2);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      text-align: left; /* Align text within the item to the left for better readability */
+    }
+
+    .pdf-item h3 {
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
+
+    .pdf-item p {
+      margin-bottom: 5px;
+    }
+
+    .download-btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      text-decoration: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      margin-top: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .download-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,215,0,0.7);
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 30px;
+      }
+
+      .logo {
+        font-size: 22px;
+      }
+
+      .container {
+        padding: 30px;
+        margin-top: 60px; /* Adjust margin for smaller screens */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wave-container">
+    <svg class="wave-svg" viewBox="0 0 1280 600" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFD700" stop-opacity="0.4" />
+          <stop offset="100%" stop-color="#FFA500" stop-opacity="0.4" />
+        </linearGradient>
+        <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFA500" stop-opacity="0.3" />
+          <stop offset="100%" stop-color="#FF4500" stop-opacity="0.3" />
+        </linearGradient>
+      </defs>
+      <path id="wavePath1" fill="url(#waveGradient1)" d="M0,300 C300,200 600,400 900,300 C1200,200 1440,350 1440,350 L1440,600 L0,600 Z"></path>
+      <path id="wavePath2" fill="url(#waveGradient2)" d="M0,350 C350,400 700,150 1050,350 C1400,400 1440,300 1440,300 L1440,600 L0,600 Z"></path>
+    </svg>
+  </div>
+
+  <header>
+    <div class="logo">Study Sphere</div>
+    <nav id="nav-links">
+      <a href="index.html">Home</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2 style="color: #FFD700;">Available PDFs</h2>
+    <div id="pdf-list"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const year = urlParams.get('year');
+      const subject = urlParams.get('subject');
+      const professor = urlParams.get('professor');
+
+      try {
+        const backendUrl = "https://study-sphere-1.onrender.com";
+        const response = await fetch(`${backendUrl}/api/pdf/search-pdfs?year=${year}&subject=${subject}&professor=${professor}`);
+        const data = await response.json();
+        const pdfListContainer = document.getElementById("pdf-list");
+
+        if (data.pdfs && data.pdfs.length > 0) {
+          data.pdfs.forEach(pdf => {
+            const pdfItem = document.createElement("div");
+            pdfItem.classList.add("pdf-item");
+
+            const unitTitle = document.createElement("h3");
+            unitTitle.textContent = `Unit ${pdf.unitNumber} - ${pdf.subject}`;
+            pdfItem.appendChild(unitTitle);
+
+            const professorInfo = document.createElement("p");
+            professorInfo.textContent = `Professor: ${pdf.professor}`;
+            pdfItem.appendChild(professorInfo);
+
+            const uploadedAtInfo = document.createElement("p");
+            const date = new Date(pdf.uploadedAt);
+            uploadedAtInfo.textContent = `Uploaded At: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            pdfItem.appendChild(uploadedAtInfo);
+
+            const downloadButton = document.createElement("a");
+            downloadButton.href = `${backendUrl}/api/pdf/download/${pdf.id}`; // Use pdf.id (the PdfDocument _id)
+            downloadButton.download = `${pdf.subject}-unit${pdf.unitNumber}.pdf`; // Suggest a filename
+            downloadButton.textContent = "Download PDF";
+            downloadButton.classList.add("download-btn");
+            pdfItem.appendChild(downloadButton);
+
+            pdfListContainer.appendChild(pdfItem);
+          });
+        } else {
+          pdfListContainer.innerHTML = "<p>No PDFs available for the selected criteria.</p>";
+        }
+      } catch (err) {
+        console.error("Error fetching PDFs:", err);
+        const pdfListContainer = document.getElementById("pdf-list");
+        pdfListContainer.innerHTML = "<p>Error fetching PDFs. Please try again later.</p>";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Sphere - Admin Dashboard</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 30px;
+      box-shadow: 0 4px 10px rgba(255,215,0,0.3);
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: #FFD700;
+    }
+
+    nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    nav button {
+      padding: 12px 20px;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    nav button:hover {
+      transform: scale(1.05);
+    }
+
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: space-around;
+    }
+
+    .card {
+      background: rgba(255,215,0,0.1);
+      border-radius: 15px;
+      padding: 30px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(255,215,0,0.2);
+      margin-bottom: 30px; /* Added a margin to better separate cards */
+    }
+
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #FFD700;
+    }
+
+    .card p {
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .recent-admins {
+      margin-top: 40px;
+      background: rgba(255,215,0,0.05);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .recent-admins h3 {
+      margin-bottom: 10px;
+      color: #FFA500;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Study Sphere - Admin Panel</div>
+    <nav>
+      <button onclick="window.location.href='add_admin.html'" id="addAdminBtn" disabled>Add Admin</button>
+      <button onclick="window.location.href='admin_login.html'">Admin</button>
+      <button onclick="logout()">Logout</button>
+    </nav>
+  </header>
+
+  <section class="dashboard">
+    <div class="card">
+      <h2>Total Admins</h2>
+      <p id="adminCount">0</p>
+    </div>
+
+    <div class="card">
+      <h2>Total PDFs</h2>
+      <p id="pdfCount">0</p>
+    </div>
+  </section>
+
+  <section class="recent-admins">
+    <h3>Recently Added Admins</h3>
+    <ul id="adminList"></ul>
+  </section>
+
+  <script>
+    const token = localStorage.getItem("adminToken");
+
+    if (token) {
+      document.getElementById("addAdminBtn").disabled = false;
+    } else {
+      alert("Unauthorized access. Please login.");
+      window.location.href = "admin_login.html";
+    }
+
+    // Fetch dashboard data
+    async function loadDashboardData() {
+      try {
+        const [adminRes, pdfRes, recentRes] = await Promise.all([
+          fetch("https://study-sphere-1.onrender.com/api/auth/admin/count", {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch("https://study-sphere-1.onrender.com/api/pdf/count", {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch("https://study-sphere-1.onrender.com/api/auth/admin/recent", {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        const adminData = await adminRes.json();
+        const pdfData = await pdfRes.json();
+        const recentAdmins = await recentRes.json();
+
+        document.getElementById("adminCount").textContent = adminData.count;
+        document.getElementById("pdfCount").textContent = pdfData.count;
+
+        const listEl = document.getElementById("adminList");
+        listEl.innerHTML = recentAdmins.admins
+          .map(admin => `<li>${admin.username} (${admin.email})</li>`)
+          .join("");
+
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load dashboard data.");
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("adminToken");
+      window.location.href = "admin_login.html";
+    }
+
+    loadDashboardData();
+  </script>
+</body>
+</html>

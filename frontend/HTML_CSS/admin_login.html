@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study Sphere - Admin Login</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 60px;
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #FFD700;
+    }
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav a, nav button {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      text-decoration: none;
+      padding: 12px 24px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      font-size: medium;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    nav a:hover, nav button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+    }
+
+    .login-section {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .login-form {
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+
+    .login-form label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #FFD700;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 2px solid #FFD700;
+      border-radius: 5px;
+      background: #000;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .login-form input:focus {
+      border-color: #FFA500;
+    }
+
+    .login-form button {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      border: none;
+      padding: 12px 24px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .login-form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 30px;
+      }
+      .logo {
+        font-size: 22px;
+      }
+      .login-form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Study Sphere</div>
+    <nav>
+      <a href="index.html" id="homeBtn">Home</a>
+      <a href="add_admin.html" id="addAdminBtn" class="disabled" style="pointer-events: none; opacity: 0.5;">Add Admin</a>
+      <a href="add-pdf.html" id="addPdfBtn" class="disabled" style="pointer-events: none; opacity: 0.5;">Add PDF</a>
+      <button id="dashboardBtn" class="disabled" style="pointer-events: none; opacity: 0.5;">Dashboard</button>
+      <button id="logoutBtn" class="disabled" style="pointer-events: none; opacity: 0.5;">Logout</button>
+    </nav>
+  </header>
+
+  <section class="login-section">
+    <form class="login-form" id="adminLoginForm">
+      <label for="email">Admin Email :</label>
+      <input type="email" id="email" name="email" required placeholder="Enter your Email here" />
+
+      <label for="password">Password :</label>
+      <input type="password" id="password" name="password" required placeholder="Enter your password" />
+
+      <button type="submit">Login as Admin</button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById("adminLoginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+  
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+  
+      try {
+        const res = await fetch("https://study-sphere-1.onrender.com/api/auth/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+  
+        const result = await res.json();
+  
+        if (res.ok) {
+          alert("Login successful!");
+          localStorage.setItem("adminToken", result.token);
+  
+          enableAdminButtons();
+  
+          // Disable home
+          const homeBtn = document.getElementById("homeBtn");
+          homeBtn.style.pointerEvents = "none";
+          homeBtn.style.opacity = "0.5";
+  
+          window.location.href = "admin-dashboard.html";
+        } else {
+          alert(result.message || "Login failed.");
+        }
+      } catch (error) {
+        console.error("Login Error:", error);
+        alert("Something went wrong. Try again later.");
+      }
+    });
+  
+    function enableAdminButtons() {
+      const addAdminBtn = document.getElementById("addAdminBtn");
+      const addPdfBtn = document.getElementById("addPdfBtn");
+      const dashboardBtn = document.getElementById("dashboardBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+  
+      [addAdminBtn, addPdfBtn, dashboardBtn, logoutBtn].forEach(btn => {
+        btn.style.pointerEvents = "auto";
+        btn.style.opacity = "1";
+      });
+    }
+  
+    function disableAdminButtons() {
+      const addAdminBtn = document.getElementById("addAdminBtn");
+      const addPdfBtn = document.getElementById("addPdfBtn");
+      const dashboardBtn = document.getElementById("dashboardBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+  
+      [addAdminBtn, addPdfBtn, dashboardBtn, logoutBtn].forEach(btn => {
+        btn.style.pointerEvents = "none";
+        btn.style.opacity = "0.5";
+      });
+    }
+  
+    // Check token on load
+    window.addEventListener("DOMContentLoaded", () => {
+      const token = localStorage.getItem("adminToken");
+      const homeBtn = document.getElementById("homeBtn");
+  
+      if (token) {
+        enableAdminButtons();
+        homeBtn.style.pointerEvents = "none";
+        homeBtn.style.opacity = "0.5";
+      } else {
+        disableAdminButtons();
+        homeBtn.style.pointerEvents = "auto";
+        homeBtn.style.opacity = "1";
+      }
+    });
+  
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("adminToken");
+      disableAdminButtons();
+  
+      const homeBtn = document.getElementById("homeBtn");
+      homeBtn.style.pointerEvents = "auto";
+      homeBtn.style.opacity = "1";
+  
+      window.location.href = "login.html";
+    });
+  
+    // ✅ Admin Dashboard button
+    document.getElementById("dashboardBtn").addEventListener("click", () => {
+      const token = localStorage.getItem("adminToken");
+      if (token) {
+        window.location.href = "admin-dashboard.html";
+      } else {
+        alert("Please log in to access the dashboard.");
+      }
+    });
+  </script>
+  
+</body>
+</html>
