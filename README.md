@@ -28,7 +28,7 @@ Faculty and admins can upload lecture notes, assignments, or previous question p
 
 ## Installation
 * Step 1: Clone the Repository
- git clone https://github.com/Hariprasadkurra/STUDY_SPHERE.git
+ git clone https://github.com/akankshnalam02/STUDY_SPHERE.git
 
  cd STUDY_SPHERE
 * Step 2: Install Backend Dependencies
